@@ -10,3 +10,12 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Exclude our own binary
+medkit
+
+# OS pollution
+.DS_Store
+
+# IDE pollution
+.idea
