@@ -1,4 +1,4 @@
-![MEDKIT](medkit.png "MEDKIT")
+<!--![MEDKIT](medkit.png "MEDKIT")-->
 # MEDKIT
 > MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.
 
