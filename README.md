@@ -4,17 +4,42 @@
 
 [![GitHub issues][github-issues-image]][github-issues-url]
 
-MEDKIT is a tool to help you take control of your local environment configuration.
+MEDKIT is a tool to help you take control of your local environment configuration including:
+
+* Dotfile Management
+* Run Command (rc) Script Management
+* PATH Variable Management
+* Software Installation
+
+MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match the systems
+you're using.
 
 ### Manage Your Dotfiles
-The trouble with dotfiles is that, unless you have just one login on one computer, you'll have lots of them. If you're
-like most people, you want your preferences and configuration to be consistent no matter where you log in.
+The trouble with dotfiles is that, unless you have just one login on one computer, you'll have lots of them spread all
+over the place. If you're like most people, you want your preferences and configuration to be consistent no matter where
+you log in.
 
 MEDKIT follows a "Write Once, Use Anywhere" philosophy. With a little help from your favorite version control tool, you
 can keep a "master" copy of your dotfiles and apply them anywhere you go.
 
-- Apply your dotfiles
+- Install the dotfiles in your repository
 - Scan for new dotfiles
+- Add dotfiles to your repository
+
+### Organize Your Startup
+Startup files often start simple, but turn into a nightmare to manage. It gets worse when tools and installers try to be
+helpful and make changes to them without asking. You can take advantage of MEDKIT's version control integration and
+templates to get your startup scripts under control once and for all.
+
+- Start with the MEDKIT template or roll your own
+- Run `*.source` scripts at startup
+
+### Organize Your PATH
+Much like startup scripts, keeping your environment's `PATH` in order can be a real challenge. MEDKIT's convention-based
+system can help!
+
+- Run `*.path` scripts
+- Determine the order of each PATH element
 
 ### Install Your Software
 Getting all your tools installed is often one of the biggest challenges when you start using a new computer for the
@@ -24,21 +49,8 @@ first time. With MEDKIT, you can script your installation scripts and run them a
 - Remember what has already been run
 - Reset if needed
 
-### Organize Your Startup
-Startup files often start simple, but turn into a nightmare to manage. It gets worse when tools and installers try to be
-helpful and make changes to them without asking. You can take advantage of MEDKIT's version control integration and
-templates to get your startup scripts under control once and for all.
-
-- Start with the MEDKIT template or roll your own
-- Run `*.source` scripts at startup
-- Determine the order each source script runs in
-
-### Organize Your PATH
-Much like startup scripts, keeping your environment's `PATH` in order can be a real challenge. MEDKIT's convention-based
-system can help!
-
-- Run `*.path` scripts
-- Determine the order of each PATH element
+### Environments <a id="environments"></a>
+MEDKIT allows you to define one or more environments, but right now it's a big mystery.
 
 <!--
 ## Philosophy
@@ -103,6 +115,7 @@ MEDKIT's full release history can be found [here][changelog].
 Distributed under the MIT license. See the [LICENSE][license] file for more information.
 
 <!-- Markdown link & img definitions -->
+[environments]: #environments
 [homebrew-bundle]: https://coderwall.com/p/afmnbq/homebrew-s-new-feature-brewfiles
 [changelog]: https://github.com/LeadPipeSoftware/medkit/blob/master/CHANGELOG.md
 [authors]: https://github.com/LeadPipeSoftware/medkit/blob/master/AUTHORS.md
