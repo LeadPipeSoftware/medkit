@@ -90,13 +90,52 @@ TBD
 ```
 
 ## Usage
-Run this:
 
+### Initialization
+First, we need to create a directory to put our MEDKIT repo.
 ```sh
-medkit
+mkdir /home/marvin/dotfiles
 ```
 
-The `medkit` command will walk you through everything and won't make any change to your computer without asking permission first.
+Switch to your new MEDKIT directory.
+```sh
+cd /home/marvin/dotfiles
+```
+
+Initialize MEDKIT.
+```sh
+medkit init
+```
+
+### Adding Dotfiles
+Now, let's add an existing dotfile to MEDKIT. Of course, you'll replace the example path shown below with something real
+on your computer.
+```sh
+medkit add dotfile /home/marvin/.vimrc
+```
+
+You can view all of the dotfiles MEDKIT is managing like this.
+```sh
+medkit get dotfiles
+```
+At this point you're ready to make your repo available in your other environments. MEDKIT is agnostic when it comes to
+how you do this, but using something like GitHub is highly recommended.
+
+TODO: Provide basic GitHub instructions.
+
+### Installing Dotfiles
+With your MEDKIT repo now under version control, you can use your repo anywhere. Let's say you have a new computer. Just
+clone your GitHub repository to the new computer and install your dotfiles.
+```sh
+medkit install dotfiles
+```
+That's it! You now have the same dotfile on both computers.
+
+### Updating Dotfiles
+When you make a change to a dotfile, you'll probably want to make that change available on all your computers. The
+specifics of how to synchronize your MEDKIT repo will depend on the tools you choose. If you're using GitHub, for
+example, you'll need to make your changes, push them to GitHub, then pull them on all your other computers. This process
+will automatically update your dotfiles.
 
 ## How to Contribute
 Contributions are welcome! Check out [this link][contributing] on how you can help!
