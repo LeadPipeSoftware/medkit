@@ -123,19 +123,19 @@ how you do this, but using something like GitHub is highly recommended.
 
 TODO: Provide basic GitHub instructions.
 
-### Installing Dotfiles
+### Applying Dotfiles
 With your MEDKIT repo now under version control, you can use your repo anywhere. Let's say you have a new computer. Just
 clone your GitHub repository to the new computer and install your dotfiles.
 ```sh
-medkit install dotfiles
+medkit apply dotfiles
 ```
 That's it! You now have the same dotfile on both computers.
 
 ### Updating Dotfiles
 When you make a change to a dotfile, you'll probably want to make that change available on all your computers. The
 specifics of how to synchronize your MEDKIT repo will depend on the tools you choose. If you're using GitHub, for
-example, you'll need to make your changes, push them to GitHub, then pull them on all your other computers. This process
-will automatically update your dotfiles.
+example, you'll need to make your changes, push them to GitHub, then pull them on all your other computers. No matter
+which process you prefer, your dotfiles will be automatically updated.
 
 ## How to Contribute
 Contributions are welcome! Check out [this link][contributing] on how you can help!
