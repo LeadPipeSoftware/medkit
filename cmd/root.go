@@ -15,7 +15,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "medkit",
 	Short: "MEDKIT is a multi-environment dotfiles manager",
-	Long:  `MEDKIT is a CLI tool for managing your dotfiles across multiple operating systems and environments.`,
+	Long:  `MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.`,
 	Version: "0.0.1-alpha",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
