@@ -123,18 +123,11 @@ dotfiles-directory: /home/marvin/dotfiles
 active-bundles: [go,macos]
 ```
 
-Next, we need to create a directory to put our MEDKIT repo.
+If you already have a dotfiles repo, clone it into dotfiles directory specified in your config file, and ensure that it follows the conventions described above.
+
+If you do not yet have your own dotfiles, let medkit help you create one.  Create and init your dotfiles directory:
 ```sh
 mkdir /home/marvin/dotfiles
-```
-
-Switch to your new MEDKIT directory.
-```sh
-cd /home/marvin/dotfiles
-```
-
-Initialize MEDKIT.
-```sh
 medkit init
 ```
 
