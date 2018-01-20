@@ -117,7 +117,13 @@ Files that you only want to use on some systems can be organized under the bundl
 In the example directory structure above, you can see 3 instances of the Brewfile.  homebrew/Brewfile exists at the root level, and will install software every time medkit is run.  Under the bundles directory, there is a Brewfile for the go bundle, and another for the macos bundle.  The latter two brewfiles will only be run if specifically requested.
 
 ### Initialization
-First, we need to create a directory to put our MEDKIT repo.
+First, we need to set up a ~/.medkit config file specifying the location of our dotfiles (defaults to ~/dotfiles), and any bundles we would like to enable on this machine.
+```yaml
+dotfiles-directory: /home/marvin/dotfiles
+active-bundles: [go,macos]
+```
+
+Next, we need to create a directory to put our MEDKIT repo.
 ```sh
 mkdir /home/marvin/dotfiles
 ```
