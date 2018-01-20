@@ -92,12 +92,13 @@ TBD
 ## Usage
 
 ### Dotfiles structure
-Medkit operates on a convention-based directory structure consisting of a root, N bundle directories, as in the following diagram:
+Medkit operates on a convention-based directory structure consisting of a root, and N bundle directories:
 
 ```
 dotfiles/
 ├ bundles
 │   ├ go
+│   │   ├ Brewfile
 │   │   └ path.sh
 │   └ macos
 │       └ Brewfile
@@ -107,11 +108,13 @@ dotfiles/
 │   └ .vimrc.symlink
 └ zsh
     ├ install.sh
-    └ .zshrc.symlink
+        └ .zshrc.symlink
 ```
-Files in the root will be common to every system.  Files in the bundles have to be specifically enabled per environment.  
+Files you intend to share across all systems should be organized at the root level of your dotfiles directory.  
 
-As you can see in the example above, there is a Brewfile in the root, which will install packages on every environment, and in the bundles, there is a macos specific Brewfile which will only be run if specified at the command line, or in the .medkit config file.
+Files that you only want to use on some systems can be organized under the bundles directory.  Each directory under bundles/ will act as a bundle, and can be optionally installed by specifying it at the command line, or in the .medkit config file.
+
+In the example directory structure above, you can see 3 instances of the Brewfile.  homebrew/Brewfile exists at the root level, and will install software every time medkit is run.  Under the bundles directory, there is a Brewfile for the go bundle, and another for the macos bundle.  The latter two brewfiles will only be run if specifically requested.
 
 ### Initialization
 First, we need to create a directory to put our MEDKIT repo.
