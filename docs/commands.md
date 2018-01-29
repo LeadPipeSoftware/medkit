@@ -3,9 +3,9 @@
 ### Basic Commands
 `medkit install dotfiles`: the basic, most often run command.  It will redot your symlinks, run your install.sh files, source your path files, etc.  If any bundles are configured in ~/.medkit, it will process them as well.
 
-`medkit {list,show,get} config`: Will list out your current configuration settings, and potentially describe any validity issues. //TODO pick a convention for list, show, or get
+`medkit show config`: Will list out your current configuration settings, and potentially describe any validity issues. //TODO pick a convention for list, show, or get
 
-`medkit {list,show,get} dotfiles`: will list all of the dotfiles that have been processed in your current environment.
+`medkit show dotfiles`: will list all of the dotfiles that have been processed in your current environment.
 
 ### Dotfiles Management Commands
 `medkit import dotfiles <file1,file2,file*,...>`: Will import the specified list of files into the users' dotfiles repo, either in the root, or optionally into the specified bundle
