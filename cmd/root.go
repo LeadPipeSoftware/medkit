@@ -43,8 +43,7 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-    viper.SetDefault("dotfilesDirectory", "$HOME/dotfiles")
-    viper.SetDefault("bundles", "")
+    setDefaults()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -71,4 +70,9 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func setDefaults() {
+    viper.SetDefault("dotfilesDirectory", "$HOME/dotfiles")
+    viper.SetDefault("bundles", "")
 }
