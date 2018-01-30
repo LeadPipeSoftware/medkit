@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const bundlesDir string = "bundles"
+
 // installDotfilesCmd represents the installDotfiles command
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
@@ -35,7 +37,7 @@ var installDotfilesCmd = &cobra.Command{
         home := viper.GetString("dotfilesDirectory")
 		fmt.Println("Will process all the dotfiles in " + home)
 
-        err := filepath.Walk(home, visit) //TODO: Do not walk the bundles directory
+        err := filepath.Walk(home, visit)
         fmt.Printf("visit returned: %v\n", err)
 	},
 }
@@ -45,6 +47,9 @@ func init() {
 }
 
 func visit(path string, f os.FileInfo, err error) error {
+    if f.IsDir() && f.Name() == bundlesDir {
+        return filepath.SkipDir
+    }
     if f.IsDir() {
         matches, err := filepath.Glob(path + "/*.symlink")
         if err == nil {
