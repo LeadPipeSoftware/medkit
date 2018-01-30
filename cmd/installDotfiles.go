@@ -22,7 +22,7 @@ import (
 
 // installDotfilesCmd represents the installDotfiles command
 var installDotfilesCmd = &cobra.Command{
-	Use:   "installDotfiles",
+	Use:   "install",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
