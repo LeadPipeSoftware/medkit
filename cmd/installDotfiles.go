@@ -23,14 +23,12 @@ import (
 
 // installDotfilesCmd represents the installDotfiles command
 var installDotfilesCmd = &cobra.Command{
-	Use:   "install",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "dotfiles",
+	Short: "THE command.  Sets up all your stuff.",
+	Long: `This is the command that does all the things.  It symlinks your *.symlink files, 
+    sources your *.source files, paths your *.path files, and installs your *.installer files.  
+    
+    Run this command any time you have made changes to your dotfiles repo`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Will process all the dotfiles in " + viper.GetString("dotfilesDirectory"))
 	},
@@ -38,14 +36,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	installCmd.AddCommand(installDotfilesCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// installDotfilesCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// installDotfilesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
