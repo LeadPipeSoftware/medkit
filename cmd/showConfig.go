@@ -40,7 +40,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	showCmd.AddCommand(showConfigCmd)
-
-    viper.SetDefault("dotfilesDirectory", "$HOME/dotfiles")
-    viper.SetDefault("bundles", "")
 }
