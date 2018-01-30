@@ -16,6 +16,8 @@ package cmd
 
 import (
 	"fmt"
+    "os"
+    "path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,10 +32,19 @@ var installDotfilesCmd = &cobra.Command{
     
     Run this command any time you have made changes to your dotfiles repo`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Will process all the dotfiles in " + viper.GetString("dotfilesDirectory"))
+        home := viper.GetString("dotfilesDirectory")
+		fmt.Println("Will process all the dotfiles in " + home)
+
+        err := filepath.Walk(home, visit)
+        fmt.Printf("visit returned: %v\n", err)
 	},
 }
 
 func init() {
 	installCmd.AddCommand(installDotfilesCmd)
+}
+
+func visit(path string, f os.FileInfo, err error) error {
+    fmt.Println("Visited " + path)
+    return nil
 }
