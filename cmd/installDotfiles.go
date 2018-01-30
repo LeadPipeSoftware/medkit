@@ -35,7 +35,7 @@ var installDotfilesCmd = &cobra.Command{
         home := viper.GetString("dotfilesDirectory")
 		fmt.Println("Will process all the dotfiles in " + home)
 
-        err := filepath.Walk(home, visit)
+        err := filepath.Walk(home, visit) //TODO: Do not walk the bundles directory
         fmt.Printf("visit returned: %v\n", err)
 	},
 }
@@ -45,6 +45,17 @@ func init() {
 }
 
 func visit(path string, f os.FileInfo, err error) error {
-    fmt.Println("Visited " + path)
+    if f.IsDir() {
+        matches, err := filepath.Glob(path + "/*.symlink")
+        if err == nil {
+            for _, match := range matches {
+                fmt.Println("  Symlink Found: " + match)
+                // TODO symlink the things
+            }
+        } else {
+            return err
+        }
+    }
+
     return nil
 }
