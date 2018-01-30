@@ -4,6 +4,12 @@
 
 [![GitHub issues][github-issues-image]][github-issues-url]
 
+### Complete Command List
+
+[commands](docs/commands.md)
+
+### Overview
+
 MEDKIT is a tool to help you take control of your local environment configuration including:
 
 * Dotfile Management
