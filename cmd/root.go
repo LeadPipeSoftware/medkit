@@ -52,15 +52,8 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		// Search config in home directory with name ".medkit" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(getHome())
 		viper.SetConfigName(".medkit")
 	}
 
@@ -73,6 +66,16 @@ func initConfig() {
 }
 
 func setDefaults() {
-    viper.SetDefault("dotfilesDirectory", "$HOME/dotfiles")
+    viper.SetDefault("dotfilesDirectory", getHome() + "/dotfiles")
     viper.SetDefault("bundles", "")
+}
+
+func getHome() string {
+    home, err := homedir.Dir()
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+
+    return home
 }
