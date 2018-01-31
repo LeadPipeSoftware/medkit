@@ -37,10 +37,11 @@ var installDotfilesCmd = &cobra.Command{
     Run this command any time you have made changes to your dotfiles repo`,
 	Run: func(cmd *cobra.Command, args []string) {
         home := viper.GetString("dotfilesDirectory")
-		fmt.Println("Will process all the dotfiles in " + home)
 
-        err := filepath.Walk(home, visit)
-        fmt.Printf("visit returned: %v\n", err)
+        if err := filepath.Walk(home, visit); err != nil {
+            fmt.Println(err)
+            os.Exit(1)
+        }
 	},
 }
 
