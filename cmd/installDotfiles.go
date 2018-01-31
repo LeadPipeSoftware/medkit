@@ -17,7 +17,9 @@ package cmd
 import (
 	"fmt"
     "os"
+    "path"
     "path/filepath"
+    "regexp"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -35,10 +37,11 @@ var installDotfilesCmd = &cobra.Command{
     Run this command any time you have made changes to your dotfiles repo`,
 	Run: func(cmd *cobra.Command, args []string) {
         home := viper.GetString("dotfilesDirectory")
-		fmt.Println("Will process all the dotfiles in " + home)
 
-        err := filepath.Walk(home, visit)
-        fmt.Printf("visit returned: %v\n", err)
+        if err := filepath.Walk(home, visit); err != nil {
+            fmt.Println(err)
+            os.Exit(1)
+        }
 	},
 }
 
@@ -54,8 +57,15 @@ func visit(path string, f os.FileInfo, err error) error {
         matches, err := filepath.Glob(path + "/*.symlink")
         if err == nil {
             for _, match := range matches {
-                fmt.Println("  Symlink Found: " + match)
-                // TODO symlink the things
+                home := viper.GetString("homeDirectory")
+                targetFile := home + "/" + getSymlinkTargetName(match)
+                if shouldLink(targetFile) {
+                    if err := os.Symlink(match, targetFile); err == nil {
+                        fmt.Printf("Symlinked %s => %s\n", match, targetFile)
+                    } else {
+                        fmt.Printf("ERROR symlinking %s: %s\n", targetFile, err)
+                    }
+                }
             }
         } else {
             return err
@@ -63,4 +73,17 @@ func visit(path string, f os.FileInfo, err error) error {
     }
 
     return nil
+}
+
+func getSymlinkTargetName(fileName string) string {
+    name := path.Base(fileName)
+    re := regexp.MustCompile("\\.symlink")
+
+    return re.ReplaceAllString(name, "")
+}
+
+func shouldLink(targetFile string) bool {
+    _, err := os.Stat(targetFile)
+
+    return os.IsNotExist(err)
 }
