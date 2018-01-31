@@ -66,7 +66,9 @@ func initConfig() {
 }
 
 func setDefaults() {
-    viper.SetDefault("dotfilesDirectory", getHome() + "/dotfiles")
+    home := getHome()
+    viper.SetDefault("homeDirectory", home)
+    viper.SetDefault("dotfilesDirectory", home + "/dotfiles")
     viper.SetDefault("bundles", "")
 }
 
