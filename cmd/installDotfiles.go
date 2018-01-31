@@ -59,7 +59,11 @@ func visit(path string, f os.FileInfo, err error) error {
                 home := viper.GetString("homeDirectory")
                 targetFile := home + "/" + getSymlinkTargetName(match)
                 if shouldLink(targetFile) {
-                    fmt.Println("Will symlink " + match + " => " + targetFile)
+                    if err := os.Symlink(match, targetFile); err == nil {
+                        fmt.Printf("Symlinked %s => %s\n", match, targetFile)
+                    } else {
+                        fmt.Printf("ERROR symlinking %s: %s\n", targetFile, err)
+                    }
                 }
             }
         } else {
