@@ -17,7 +17,9 @@ package cmd
 import (
 	"fmt"
     "os"
+    "path"
     "path/filepath"
+    "regexp"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -54,8 +56,9 @@ func visit(path string, f os.FileInfo, err error) error {
         matches, err := filepath.Glob(path + "/*.symlink")
         if err == nil {
             for _, match := range matches {
-                fmt.Println("  Symlink Found: " + match)
-                // TODO symlink the things
+                home := viper.GetString("homeDirectory")
+                file := getSymlinkTargetName(match)
+                fmt.Println("Will symlink " + match + " => " + home + "/" + file)
             }
         } else {
             return err
@@ -63,4 +66,11 @@ func visit(path string, f os.FileInfo, err error) error {
     }
 
     return nil
+}
+
+func getSymlinkTargetName(fileName string) string {
+    name := path.Base(fileName)
+    re := regexp.MustCompile("\\.symlink")
+
+    return re.ReplaceAllString(name, "")
 }
