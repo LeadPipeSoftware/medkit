@@ -33,6 +33,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
         fmt.Println("MEDKit's current configuration values:")
+        fmt.Println(" homeDirectory: " + viper.GetString("homeDirectory"))
         fmt.Println(" dotfilesDirectory: " + viper.GetString("dotfilesDirectory"))
         fmt.Println(" bundles: " + viper.GetString("bundles"))
 	},
