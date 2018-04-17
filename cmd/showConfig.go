@@ -28,6 +28,7 @@ var showConfigCmd = &cobra.Command{
 	Long: `Display current medkit configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
         fmt.Println("MEDKit's current configuration values:")
+        fmt.Println(" homeDirectory: " + viper.GetString("homeDirectory"))
         fmt.Println(" dotfilesDirectory: " + viper.GetString("dotfilesDirectory"))
         fmt.Println(" bundles: " + viper.GetString("bundles"))
 	},
