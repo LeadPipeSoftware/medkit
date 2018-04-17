@@ -42,6 +42,8 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+    setDefaults()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -50,15 +52,8 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		// Search config in home directory with name ".medkit" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(getHome())
 		viper.SetConfigName(".medkit")
 	}
 
@@ -68,4 +63,21 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func setDefaults() {
+    home := getHome()
+    viper.SetDefault("homeDirectory", home)
+    viper.SetDefault("dotfilesDirectory", home + "/dotfiles")
+    viper.SetDefault("bundles", "")
+}
+
+func getHome() string {
+    home, err := homedir.Dir()
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+
+    return home
 }

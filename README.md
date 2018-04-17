@@ -4,6 +4,12 @@
 
 [![GitHub issues][github-issues-image]][github-issues-url]
 
+### Complete Command List
+
+[commands](docs/commands.md)
+
+### Overview
+
 MEDKIT is a tool to help you take control of your local environment configuration including:
 
 * Dotfile Management
@@ -91,19 +97,43 @@ TBD
 
 ## Usage
 
+### Dotfiles structure
+Medkit operates on a convention-based directory structure consisting of a root, and N bundle directories:
+
+```
+dotfiles/
+├ bundles
+│   ├ go
+│   │   ├ Brewfile
+│   │   └ path.sh
+│   └ macos
+│       └ Brewfile
+├ homebrew
+│   └ Brewfile
+├ vim
+│   └ .vimrc.symlink
+└ zsh
+    ├ install.sh
+        └ .zshrc.symlink
+```
+Files you intend to share across all systems should be organized at the root level of your dotfiles directory.  
+
+Files that you only want to use on some systems can be organized under the bundles directory.  Each directory under bundles/ will act as a bundle, and can be optionally installed by specifying it at the command line, or in the .medkit config file.
+
+In the example directory structure above, you can see 3 instances of the Brewfile.  homebrew/Brewfile exists at the root level, and will install software every time medkit is run.  Under the bundles directory, there is a Brewfile for the go bundle, and another for the macos bundle.  The latter two brewfiles will only be run if specifically requested.
+
 ### Initialization
-First, we need to create a directory to put our MEDKIT repo.
+First, we need to set up a ~/.medkit config file specifying the location of our dotfiles (defaults to ~/dotfiles), and any bundles we would like to enable on this machine.
+```yaml
+dotfiles-directory: /home/marvin/dotfiles
+active-bundles: [go,macos]
+```
+
+If you already have a dotfiles repo, clone it into dotfiles directory specified in your config file, and ensure that it follows the conventions described above.
+
+If you do not yet have your own dotfiles, let medkit help you create one.  Create and init your dotfiles directory:
 ```sh
 mkdir /home/marvin/dotfiles
-```
-
-Switch to your new MEDKIT directory.
-```sh
-cd /home/marvin/dotfiles
-```
-
-Initialize MEDKIT.
-```sh
 medkit init
 ```
 
