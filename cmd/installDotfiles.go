@@ -16,15 +16,22 @@ import (
 const bundlesDir = "bundles"
 
 var alwaysSkip bool
+var alwaysOverwrite bool
 
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
 	Short: "Creates symbolic links based on the .symlink files in your dotfiles directory.",
 	Long: `This command looks for any file with a .symlink extension in your dotfiles directory. When it finds a match,
-           it will create a symbolic link from that file to your home directory.
+it will create a symbolic link from that file to your home directory.
     
-           Run this command any time you want to make sure all your dotfiles have been installed.`,
+Run this command any time you want to make sure all your dotfiles have been installed.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		if alwaysSkip && alwaysOverwrite {
+			fmt.Println("The always-skip and always-overwrite flags cannot be used together.")
+			os.Exit(1)
+		}
+
 		dotfilesDirectory := viper.GetString("DotfilesDirectory")
 
 		fmt.Printf("Dotfile directory: %s\n", dotfilesDirectory)
@@ -39,7 +46,8 @@ var installDotfilesCmd = &cobra.Command{
 }
 
 func init() {
-	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "Always skip existing files.")
+	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "always skip existing files")
+	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-overwrite", "o", false, "always overwrite existing files")
 	installCmd.AddCommand(installDotfilesCmd)
 }
 
@@ -123,8 +131,12 @@ func symlinkFilesInDirectory(path string, home string) error {
 
 				if alwaysSkip {
 					fmt.Printf("Skipping %s\n", targetFile)
+				} else if alwaysOverwrite {
+					fmt.Printf("Overwriting %s\n", targetFile)
+					if err := backupAndRemoveTarget(targetFile); err == nil {
+						createSymlink(match, targetFile)
+					}
 				} else {
-
 					fmt.Printf("%s already exists. (S)kip or (O)verwrite?\n", targetFile)
 
 				InputLoop:
