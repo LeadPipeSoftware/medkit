@@ -11,6 +11,7 @@ import (
 
 var cfgFile string
 
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "medkit",
@@ -35,12 +36,10 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.medkit.yaml)")
+	// Cobra supports persistent flags, which, if defined here, will be global for your application.
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.medkit)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
+	// Cobra also supports local flags, which will only run when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
     setDefaults()
@@ -61,15 +60,16 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("Using config file: ", viper.ConfigFileUsed())
 	}
 }
 
 func setDefaults() {
     home := getHome()
-    viper.SetDefault("homeDirectory", home)
-    viper.SetDefault("dotfilesDirectory", home + "/dotfiles")
-    viper.SetDefault("bundles", "")
+    viper.SetDefault("HomeDirectory", home)
+    viper.SetDefault("DotfilesDirectory", home + "/dotfiles")
+    viper.SetDefault("Bundles", "")
+	viper.SetDefault("BackupExtension", ".backup")
 }
 
 func getHome() string {

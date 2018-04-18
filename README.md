@@ -17,8 +17,8 @@ MEDKIT is a tool to help you take control of your local environment configuratio
 * PATH Variable Management
 * Software Installation
 
-MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match the systems
-you're using.
+MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match
+the systems you're using. This lets you customize each environment with ease.
 
 ### Manage Your Dotfiles
 The trouble with dotfiles is that, unless you have just one login on one computer, you'll have lots of them spread all
@@ -98,7 +98,7 @@ TBD
 ## Usage
 
 ### Dotfiles structure
-Medkit operates on a convention-based directory structure consisting of a root, and N bundle directories:
+MEDKIT operates on a convention-based directory structure consisting of a root, and N bundle directories:
 
 ```
 dotfiles/
@@ -116,9 +116,9 @@ dotfiles/
     ├ install.sh
         └ .zshrc.symlink
 ```
-Files you intend to share across all systems should be organized at the root level of your dotfiles directory.  
+Files you intend to share across all systems should be organized at the root level of your dotfile directory.  
 
-Files that you only want to use on some systems can be organized under the bundles directory.  Each directory under bundles/ will act as a bundle, and can be optionally installed by specifying it at the command line, or in the .medkit config file.
+Files that you only want to use on some systems can be organized under the bundles directory. Each directory under bundles/ will act as a bundle, and can be optionally installed by specifying it at the command line, or in the .medkit config file.
 
 In the example directory structure above, you can see 3 instances of the Brewfile.  homebrew/Brewfile exists at the root level, and will install software every time medkit is run.  Under the bundles directory, there is a Brewfile for the go bundle, and another for the macos bundle.  The latter two brewfiles will only be run if specifically requested.
 
@@ -137,12 +137,18 @@ mkdir /home/marvin/dotfiles
 medkit init
 ```
 
-### Adding Dotfiles
+### TODO: Adding Dotfiles
 Now, let's add an existing dotfile to MEDKIT. Of course, you'll replace the example path shown below with something real
 on your computer.
 ```sh
-medkit add dotfile /home/marvin/.vimrc
+medkit add dotfile -f /home/marvin/.vimrc -d vim
 ```
+
+This command will:
+
+- Create a new folder in your dotfiles repo (if it doesn't already exist) named `vim`
+- Move the specified dotfile into the folder
+- Symlink the dotfile back to the original location
 
 You can view all of the dotfiles MEDKIT is managing like this.
 ```sh
@@ -153,19 +159,19 @@ how you do this, but using something like GitHub is highly recommended.
 
 TODO: Provide basic GitHub instructions.
 
-### Installing Dotfiles
+### Install Dotfiles
 With your MEDKIT repo now under version control, you can use your repo anywhere. Let's say you have a new computer. Just
 clone your GitHub repository to the new computer and install your dotfiles.
 ```sh
 medkit install dotfiles
 ```
-That's it! You now have the same dotfile on both computers.
+That's it!
 
 ### Updating Dotfiles
 When you make a change to a dotfile, you'll probably want to make that change available on all your computers. The
 specifics of how to synchronize your MEDKIT repo will depend on the tools you choose. If you're using GitHub, for
-example, you'll need to make your changes, push them to GitHub, then pull them on all your other computers. This process
-will automatically update your dotfiles.
+example, you'll need to make your changes, push them to GitHub, then pull them on all your other computers. No matter
+which process you prefer, your dotfiles will be automatically updated.
 
 ## How to Contribute
 Contributions are welcome! Check out [this link][contributing] on how you can help!
