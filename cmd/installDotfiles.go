@@ -27,18 +27,20 @@ import (
 
 const bundlesDir string = "bundles"
 
-// installDotfilesCmd represents the installDotfiles command
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
-	Short: "THE command.  Sets up all your stuff.",
-	Long: `This is the command that does all the things.  It symlinks your *.symlink files, 
+	Short: "THE command. Sets up all your stuff.",
+	Long: `This is the command that does all the things. It symlinks your *.symlink files, 
     sources your *.source files, paths your *.path files, and installs your *.installer files.  
     
-    Run this command any time you have made changes to your dotfiles repo`,
+    Run this command any time you have made changes to your dotfiles repo.`,
 	Run: func(cmd *cobra.Command, args []string) {
-        home := viper.GetString("dotfilesDirectory")
+        dotfilesDirectory := viper.GetString("dotfilesDirectory")
 
-        if err := filepath.Walk(home, visit); err != nil {
+        fmt.Printf("Dotfile directory: %s\n", dotfilesDirectory)
+        fmt.Printf("   Home directory: %s\n", viper.GetString("homeDirectory"))
+
+        if err := filepath.Walk(dotfilesDirectory, visit); err != nil {
             fmt.Println(err)
             os.Exit(1)
         }
@@ -50,22 +52,26 @@ func init() {
 }
 
 func visit(path string, f os.FileInfo, err error) error {
+	home := viper.GetString("homeDirectory")
+
     if f.IsDir() && f.Name() == bundlesDir {
         return filepath.SkipDir
     }
+
     if f.IsDir() {
         matches, err := filepath.Glob(path + "/*.symlink")
         if err == nil {
             for _, match := range matches {
-                home := viper.GetString("homeDirectory")
                 targetFile := home + "/" + getSymlinkTargetName(match)
-                if shouldLink(targetFile) {
+                if fileDoesNotExist(targetFile) {
                     if err := os.Symlink(match, targetFile); err == nil {
                         fmt.Printf("Symlinked %s => %s\n", match, targetFile)
                     } else {
                         fmt.Printf("ERROR symlinking %s: %s\n", targetFile, err)
                     }
-                }
+                } else {
+                	fmt.Printf("Symlink for %s already exists. Skipping.\n", f.Name())
+				}
             }
         } else {
             return err
@@ -82,7 +88,8 @@ func getSymlinkTargetName(fileName string) string {
     return re.ReplaceAllString(name, "")
 }
 
-func shouldLink(targetFile string) bool {
+// Attempt to get the FileInfo for the target and if there's an error then assume the file doesn't exist
+func fileDoesNotExist(targetFile string) bool {
     _, err := os.Stat(targetFile)
 
     return os.IsNotExist(err)
