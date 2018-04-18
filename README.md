@@ -137,7 +137,7 @@ mkdir /home/marvin/dotfiles
 medkit init
 ```
 
-### Adding Dotfiles
+### TODO: Adding Dotfiles
 Now, let's add an existing dotfile to MEDKIT. Of course, you'll replace the example path shown below with something real
 on your computer.
 ```sh
@@ -159,13 +159,13 @@ how you do this, but using something like GitHub is highly recommended.
 
 TODO: Provide basic GitHub instructions.
 
-### Applying Dotfiles
+### Install Dotfiles
 With your MEDKIT repo now under version control, you can use your repo anywhere. Let's say you have a new computer. Just
 clone your GitHub repository to the new computer and install your dotfiles.
 ```sh
-medkit apply dotfiles
+medkit install dotfiles
 ```
-That's it! You now have the same dotfile on both computers.
+That's it!
 
 ### Updating Dotfiles
 When you make a change to a dotfile, you'll probably want to make that change available on all your computers. The

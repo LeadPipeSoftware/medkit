@@ -1,17 +1,3 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
@@ -27,20 +13,22 @@ import (
 	"github.com/spf13/viper"
 )
 
-const bundlesDir string = "bundles"
+const bundlesDir = "bundles"
+
+var alwaysSkip bool
 
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
-	Short: "THE command. Sets up all your stuff.",
-	Long: `This is the command that does all the things. It symlinks your *.symlink files, 
-    sources your *.source files, paths your *.path files, and installs your *.installer files.  
+	Short: "Creates symbolic links based on the .symlink files in your dotfiles directory.",
+	Long: `This command looks for any file with a .symlink extension in your dotfiles directory. When it finds a match,
+           it will create a symbolic link from that file to your home directory.
     
-    Run this command any time you have made changes to your dotfiles repo.`,
+           Run this command any time you want to make sure all your dotfiles have been installed.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dotfilesDirectory := viper.GetString("dotfilesDirectory")
+		dotfilesDirectory := viper.GetString("DotfilesDirectory")
 
 		fmt.Printf("Dotfile directory: %s\n", dotfilesDirectory)
-		fmt.Printf("   Home directory: %s\n", viper.GetString("homeDirectory"))
+		fmt.Printf("   Home directory: %s\n", viper.GetString("HomeDirectory"))
 		fmt.Println()
 
 		if err := filepath.Walk(dotfilesDirectory, visit); err != nil {
@@ -51,50 +39,20 @@ var installDotfilesCmd = &cobra.Command{
 }
 
 func init() {
+	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "Always skip existing files.")
 	installCmd.AddCommand(installDotfilesCmd)
 }
 
+// The function called by the Walk method.
 func visit(path string, f os.FileInfo, err error) error {
-	home := viper.GetString("homeDirectory")
+	home := viper.GetString("HomeDirectory")
 
 	if f.IsDir() && f.Name() == bundlesDir {
 		return filepath.SkipDir
 	}
 
 	if f.IsDir() {
-		matches, err := filepath.Glob(path + "/*.symlink")
-		if err == nil {
-			for _, match := range matches {
-				targetFile := home + "/" + getSymlinkTargetName(match)
-				if fileDoesNotExist(targetFile) {
-					createSymlink(match, targetFile)
-				} else {
-					input := bufio.NewScanner(os.Stdin)
-
-					fmt.Printf("%s already exists. (S)kip or (O)verwrite?\n", targetFile)
-
-					InputLoop:
-					for input.Scan() {
-
-						answer := strings.ToLower(input.Text())
-
-						switch answer {
-						case "o":
-							fmt.Printf("Overwriting %s\n", f.Name())
-							if err := backupAndRemoveTarget(targetFile); err == nil {
-								createSymlink(match, targetFile)
-							}
-							break InputLoop
-						case "s":
-							fmt.Printf("Skipping %s\n", f.Name())
-							break InputLoop
-						default:
-							fmt.Println("Invalid response. (S)kip or (O)verwrite?")
-						}
-					}
-				}
-			}
-		} else {
+		if err := symlinkFilesInDirectory(path, home); err != nil {
 			return err
 		}
 	}
@@ -102,8 +60,9 @@ func visit(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
+// Creates a backup of and then removes a file.
 func backupAndRemoveTarget(filename string) error {
-	backupExtension := ".backup"
+	backupExtension := viper.GetString("BackupExtension")
 	backupFile := filename + backupExtension
 
 	if _, err := os.Stat(backupFile); os.IsNotExist(err) {
@@ -127,6 +86,7 @@ func backupAndRemoveTarget(filename string) error {
 	return nil
 }
 
+// Creates a symbolic link.
 func createSymlink(source string, target string) {
 	if err := os.Symlink(source, target); err == nil {
 		fmt.Printf("Symlinked %s => %s\n", source, target)
@@ -135,16 +95,63 @@ func createSymlink(source string, target string) {
 	}
 }
 
-// Attempt to get the FileInfo for the target and if there's an error then assume the file doesn't exist
+// Returns true if the specified file does not exist.
 func fileDoesNotExist(targetFile string) bool {
 	_, err := os.Stat(targetFile)
 
 	return os.IsNotExist(err)
 }
 
+// Builds and returns the symbolic link target name (the name without the .symlink extension).
 func getSymlinkTargetName(fileName string) string {
 	name := path.Base(fileName)
 	re := regexp.MustCompile("\\.symlink")
 
 	return re.ReplaceAllString(name, "")
+}
+
+// Creates symbolic links for each .symlink file in a directory.
+func symlinkFilesInDirectory(path string, home string) error {
+	matches, err := filepath.Glob(path + "/*.symlink")
+	if err == nil {
+		for _, match := range matches {
+			targetFile := home + "/" + getSymlinkTargetName(match)
+			if fileDoesNotExist(targetFile) {
+				createSymlink(match, targetFile)
+			} else {
+				input := bufio.NewScanner(os.Stdin)
+
+				if alwaysSkip {
+					fmt.Printf("Skipping %s\n", targetFile)
+				} else {
+
+					fmt.Printf("%s already exists. (S)kip or (O)verwrite?\n", targetFile)
+
+				InputLoop:
+					for input.Scan() {
+
+						answer := strings.ToLower(input.Text())
+
+						switch answer {
+						case "o":
+							fmt.Printf("Overwriting %s\n", targetFile)
+							if err := backupAndRemoveTarget(targetFile); err == nil {
+								createSymlink(match, targetFile)
+							}
+							break InputLoop
+						case "s":
+							fmt.Printf("Skipping %s\n", targetFile)
+							break InputLoop
+						default:
+							fmt.Println("Invalid response. (S)kip or (O)verwrite?")
+						}
+					}
+				}
+			}
+		}
+	} else {
+		return err
+	}
+
+	return nil
 }

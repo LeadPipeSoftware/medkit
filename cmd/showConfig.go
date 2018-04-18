@@ -1,17 +1,3 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
@@ -24,10 +10,10 @@ import (
 // showConfigCmd represents the showConfig command
 var showConfigCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Display current medkit configuration",
-	Long: `Display current medkit configuration`,
+	Short: "Display current MEDKIT configuration",
+	Long: `Display current MEDKIT configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-        fmt.Println("MEDKit's current configuration values:")
+        fmt.Println("MEDKIT's current configuration values:")
         fmt.Println(" homeDirectory: " + viper.GetString("homeDirectory"))
         fmt.Println(" dotfilesDirectory: " + viper.GetString("dotfilesDirectory"))
         fmt.Println(" bundles: " + viper.GetString("bundles"))
