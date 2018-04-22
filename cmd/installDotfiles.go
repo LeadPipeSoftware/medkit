@@ -20,7 +20,7 @@ var alwaysOverwrite bool
 
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
-	Short: "Creates symbolic links based on the .symlink files in your dotfiles directory.",
+	Short: "create symbolic links based on the .symlink files in your dotfiles directory",
 	Long: `This command looks for any file with a .symlink extension in your dotfiles directory. When it finds a match,
 it will create a symbolic link from that file to your home directory.
     

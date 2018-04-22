@@ -11,12 +11,11 @@ import (
 
 var cfgFile string
 
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "medkit",
-	Short: "MEDKIT is a multi-environment dotfiles manager",
-	Long:  `MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.`,
+	Use:     "medkit",
+	Short:   "MEDKIT is a multi-environment dotfiles manager",
+	Long:    `MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.`,
 	Version: "0.0.1-alpha",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -42,7 +41,7 @@ func init() {
 	// Cobra also supports local flags, which will only run when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-    setDefaults()
+	setDefaults()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -65,19 +64,19 @@ func initConfig() {
 }
 
 func setDefaults() {
-    home := getHome()
-    viper.SetDefault("HomeDirectory", home)
-    viper.SetDefault("DotfilesDirectory", home + "/dotfiles")
-    viper.SetDefault("Bundles", "")
+	home := getHome()
+	viper.SetDefault("HomeDirectory", home)
+	viper.SetDefault("DotfilesDirectory", home+"/dotfiles")
+	viper.SetDefault("Bundles", "")
 	viper.SetDefault("BackupExtension", ".backup")
 }
 
 func getHome() string {
-    home, err := homedir.Dir()
-    if err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-    return home
+	return home
 }
