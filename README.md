@@ -3,6 +3,7 @@
 > MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.
 
 [![GitHub issues][github-issues-image]][github-issues-url]
+[![Go Report Card](https://goreportcard.com/badge/github.com/LeadPipeSoftware/medkit)](https://goreportcard.com/report/github.com/LeadPipeSoftware/medkit)
 
 ### Complete Command List
 

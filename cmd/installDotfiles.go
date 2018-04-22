@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io"
 )
 
 const bundlesDir = "bundles"
@@ -68,30 +69,48 @@ func visit(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
-// Creates a backup of and then removes a file.
-func backupAndRemoveTarget(filename string) error {
+// Creates a backup of a file. Removes existing backups first.
+func backupThenRemoveFile(filename string) error {
 	backupExtension := viper.GetString("BackupExtension")
 	backupFile := filename + backupExtension
 
-	if _, err := os.Stat(backupFile); os.IsNotExist(err) {
-		fmt.Println("No existing backup")
-	} else {
-		if err := os.Remove(backupFile); err == nil {
-			fmt.Println("Existing backup removed")
-		} else {
+	if fileExists(backupFile) {
+		if err := os.Remove(backupFile); err != nil {
 			fmt.Printf("ERROR removing backup %s: %s\n", backupFile, err)
 			return err
 		}
 	}
 
-	if err := os.Rename(filename, backupFile); err == nil {
-		fmt.Println("Backup created")
-	} else {
+	if err := os.Rename(filename, backupFile); err != nil {
 		fmt.Printf("ERROR creating backup %s: %s\n", backupFile, err)
 		return err
 	}
 
 	return nil
+}
+
+// Copies a file.
+func copyFile(src string, dst string) error {
+	s, err := os.Open(src)
+
+	if err != nil {
+		return err
+	}
+
+	defer s.Close()
+
+	d, err := os.Create(dst)
+
+	if err != nil {
+		return err
+	}
+
+	if _, err := io.Copy(d, s); err != nil {
+		d.Close()
+		return err
+	}
+
+	return d.Close()
 }
 
 // Creates a symbolic link.
@@ -108,6 +127,11 @@ func fileDoesNotExist(targetFile string) bool {
 	_, err := os.Stat(targetFile)
 
 	return os.IsNotExist(err)
+}
+
+// Returns true if the specified file exists.
+func fileExists(targetFile string) bool {
+	return !fileDoesNotExist(targetFile)
 }
 
 // Builds and returns the symbolic link target name (the name without the .symlink extension).
@@ -133,7 +157,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 					fmt.Printf("Skipping %s\n", targetFile)
 				} else if alwaysOverwrite {
 					fmt.Printf("Overwriting %s\n", targetFile)
-					if err := backupAndRemoveTarget(targetFile); err == nil {
+					if err := backupThenRemoveFile(targetFile); err == nil {
 						createSymlink(match, targetFile)
 					}
 				} else {
@@ -147,7 +171,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 						switch answer {
 						case "o":
 							fmt.Printf("Overwriting %s\n", targetFile)
-							if err := backupAndRemoveTarget(targetFile); err == nil {
+							if err := backupThenRemoveFile(targetFile); err == nil {
 								createSymlink(match, targetFile)
 							}
 							break InputLoop
