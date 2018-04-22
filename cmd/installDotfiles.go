@@ -7,11 +7,9 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io"
 )
 
 const bundlesDir = "bundles"
@@ -26,33 +24,36 @@ var installDotfilesCmd = &cobra.Command{
 it will create a symbolic link from that file to your home directory.
     
 Run this command any time you want to make sure all your dotfiles have been installed.`,
-	Run: func(cmd *cobra.Command, args []string) {
-
-		if alwaysSkip && alwaysOverwrite {
-			fmt.Println("The always-skip and always-overwrite flags cannot be used together.")
-			os.Exit(1)
-		}
-
-		dotfilesDirectory := viper.GetString("DotfilesDirectory")
-
-		fmt.Printf("Dotfile directory: %s\n", dotfilesDirectory)
-		fmt.Printf("   Home directory: %s\n", viper.GetString("HomeDirectory"))
-		fmt.Println()
-
-		if err := filepath.Walk(dotfilesDirectory, visit); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	},
+	Run: installDotfiles,
 }
 
+// init initializes the command.
 func init() {
 	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "always skip existing files")
 	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-overwrite", "o", false, "always overwrite existing files")
 	installCmd.AddCommand(installDotfilesCmd)
 }
 
-// The function called by the Walk method.
+// installDotfiles will install dotfiles by creating symlinks.
+func installDotfiles(cmd *cobra.Command, args []string) {
+	if alwaysSkip && alwaysOverwrite {
+		fmt.Print("Sorry, the always-skip and always-overwrite flags cannot be used together.")
+		os.Exit(1)
+	}
+
+	dotfilesDirectory := viper.GetString("DotfilesDirectory")
+
+	fmt.Printf("Dotfile directory: %s", dotfilesDirectory)
+	fmt.Printf("\n   Home directory: %s", viper.GetString("HomeDirectory"))
+	fmt.Println()
+
+	if err := filepath.Walk(dotfilesDirectory, visit); err != nil {
+		fmt.Printf("\n%s\n", err)
+		os.Exit(1)
+	}
+}
+
+// visit determines the action(s) taken during the filepath.Walk method.
 func visit(path string, f os.FileInfo, err error) error {
 	home := viper.GetString("HomeDirectory")
 
@@ -69,72 +70,48 @@ func visit(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
-// Creates a backup of a file. Removes existing backups first.
+// backupThenRemoveFile creates a backup of a file, but removes existing backups first.
 func backupThenRemoveFile(filename string) error {
 	backupExtension := viper.GetString("BackupExtension")
 	backupFile := filename + backupExtension
 
 	if fileExists(backupFile) {
 		if err := os.Remove(backupFile); err != nil {
-			fmt.Printf("ERROR removing backup %s: %s\n", backupFile, err)
+			fmt.Printf("\nERROR removing backup %s: %s", backupFile, err)
 			return err
 		}
 	}
 
 	if err := os.Rename(filename, backupFile); err != nil {
-		fmt.Printf("ERROR creating backup %s: %s\n", backupFile, err)
+		fmt.Printf("\nERROR creating backup %s: %s", backupFile, err)
 		return err
 	}
 
 	return nil
 }
 
-// Copies a file.
-func copyFile(src string, dst string) error {
-	s, err := os.Open(src)
-
-	if err != nil {
-		return err
-	}
-
-	defer s.Close()
-
-	d, err := os.Create(dst)
-
-	if err != nil {
-		return err
-	}
-
-	if _, err := io.Copy(d, s); err != nil {
-		d.Close()
-		return err
-	}
-
-	return d.Close()
-}
-
-// Creates a symbolic link.
+// createSymlink creates a symbolic link.
 func createSymlink(source string, target string) {
 	if err := os.Symlink(source, target); err == nil {
-		fmt.Printf("Symlinked %s => %s\n", source, target)
+		fmt.Printf("\nSymlinked %s => %s", source, target)
 	} else {
-		fmt.Printf("ERROR symlinking %s: %s\n", target, err)
+		fmt.Printf("\nERROR symlinking %s: %s", target, err)
 	}
 }
 
-// Returns true if the specified file does not exist.
+// fileDoesNotExist returns true if the specified file does not exist.
 func fileDoesNotExist(targetFile string) bool {
 	_, err := os.Stat(targetFile)
 
 	return os.IsNotExist(err)
 }
 
-// Returns true if the specified file exists.
+// fileExists returns true if the specified file exists.
 func fileExists(targetFile string) bool {
 	return !fileDoesNotExist(targetFile)
 }
 
-// Builds and returns the symbolic link target name (the name without the .symlink extension).
+// getSymlinkTargetName builds and returns the symbolic link target name (the name without the .symlink extension).
 func getSymlinkTargetName(fileName string) string {
 	name := path.Base(fileName)
 	re := regexp.MustCompile("\\.symlink")
@@ -142,44 +119,52 @@ func getSymlinkTargetName(fileName string) string {
 	return re.ReplaceAllString(name, "")
 }
 
-// Creates symbolic links for each .symlink file in a directory.
+// symlinkFilesInDirectory creates symbolic links for each .symlink file in a directory.
 func symlinkFilesInDirectory(path string, home string) error {
 	matches, err := filepath.Glob(path + "/*.symlink")
+
 	if err == nil {
 		for _, match := range matches {
 			targetFile := home + "/" + getSymlinkTargetName(match)
+
 			if fileDoesNotExist(targetFile) {
 				createSymlink(match, targetFile)
 			} else {
 				input := bufio.NewScanner(os.Stdin)
 
 				if alwaysSkip {
-					fmt.Printf("Skipping %s\n", targetFile)
+					fmt.Printf("\nSkipping %s", targetFile)
 				} else if alwaysOverwrite {
-					fmt.Printf("Overwriting %s\n", targetFile)
+					fmt.Printf("\nOverwriting %s", targetFile)
 					if err := backupThenRemoveFile(targetFile); err == nil {
 						createSymlink(match, targetFile)
 					}
 				} else {
-					fmt.Printf("%s already exists. (S)kip or (O)verwrite?\n", targetFile)
+					fmt.Printf("\n\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
 
 				InputLoop:
 					for input.Scan() {
 
-						answer := strings.ToLower(input.Text())
+						answer := input.Text()
 
 						switch answer {
-						case "o":
-							fmt.Printf("Overwriting %s\n", targetFile)
+						case "O", "o":
+							fmt.Printf("\nOverwriting %s", targetFile)
 							if err := backupThenRemoveFile(targetFile); err == nil {
 								createSymlink(match, targetFile)
 							}
+							if answer == "O" {
+								alwaysOverwrite = true
+							}
 							break InputLoop
-						case "s":
-							fmt.Printf("Skipping %s\n", targetFile)
+						case "S", "s":
+							fmt.Printf("\nSkipping %s", targetFile)
+							if answer == "S" {
+								alwaysSkip = true
+							}
 							break InputLoop
 						default:
-							fmt.Println("Invalid response. (S)kip or (O)verwrite?")
+							fmt.Printf("\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
 						}
 					}
 				}

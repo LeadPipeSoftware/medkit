@@ -17,9 +17,6 @@ var rootCmd = &cobra.Command{
 	Short:   "MEDKIT is a multi-environment dotfiles manager",
 	Long:    `MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.`,
 	Version: "0.0.1-alpha",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -31,16 +28,10 @@ func Execute() {
 	}
 }
 
+// init initializes the command.
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here, will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.medkit)")
-
-	// Cobra also supports local flags, which will only run when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	initFlags()
 	setDefaults()
 }
 
@@ -63,6 +54,14 @@ func initConfig() {
 	}
 }
 
+// initFlags initializes the flags.
+func initFlags() {
+	// Here you will define your flags and configuration settings.
+	// Cobra supports persistent flags, which, if defined here, will be global for your application.
+	rootCmd.PersistentFlags().StringVar(&cfgFile,"config", "", "config file (default is $HOME/.medkit)")
+}
+
+// setDefaults sets the program defaults.
 func setDefaults() {
 	home := getHome()
 	viper.SetDefault("HomeDirectory", home)
@@ -71,8 +70,10 @@ func setDefaults() {
 	viper.SetDefault("BackupExtension", ".backup")
 }
 
+// getHome returns the home directory.
 func getHome() string {
 	home, err := homedir.Dir()
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
