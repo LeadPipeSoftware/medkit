@@ -1,7 +1,9 @@
 package main
 
-import "github.com/LeadPipeSoftware/medkit/cmd"
+import (
+	"github.com/LeadPipeSoftware/medkit/cmd/medkit"
+)
 
 func main() {
-	cmd.Execute()
+	medkit.Execute()
 }

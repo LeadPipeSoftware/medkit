@@ -1,42 +1,24 @@
-package cmd
+package dotfile
 
 import (
 	"bufio"
 	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const bundlesDir = "bundles"
 
-var alwaysSkip bool
-var alwaysOverwrite bool
+var AlwaysSkip bool
+var AlwaysOverwrite bool
 
-var installDotfilesCmd = &cobra.Command{
-	Use:   "dotfiles",
-	Short: "create symbolic links based on the .symlink files in your dotfiles directory",
-	Long: `This command looks for any file with a .symlink extension in your dotfiles directory. When it finds a match,
-it will create a symbolic link from that file to your home directory.
-    
-Run this command any time you want to make sure all your dotfiles have been installed.`,
-	Run: installDotfiles,
-}
-
-// init initializes the command.
-func init() {
-	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "always skip existing files")
-	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-overwrite", "o", false, "always overwrite existing files")
-	installCmd.AddCommand(installDotfilesCmd)
-}
-
-// installDotfiles will install dotfiles by creating symlinks.
-func installDotfiles(cmd *cobra.Command, args []string) {
-	if alwaysSkip && alwaysOverwrite {
+// InstallDotfiles will install dotfiles.
+func InstallDotfiles(cmd *cobra.Command, args []string) {
+	if AlwaysSkip && AlwaysOverwrite {
 		fmt.Print("Sorry, the always-skip and always-overwrite flags cannot be used together.")
 		os.Exit(1)
 	}
@@ -51,6 +33,8 @@ func installDotfiles(cmd *cobra.Command, args []string) {
 		fmt.Printf("\n%s\n", err)
 		os.Exit(1)
 	}
+
+	fmt.Println()
 }
 
 // visit determines the action(s) taken during the filepath.Walk method.
@@ -132,15 +116,15 @@ func symlinkFilesInDirectory(path string, home string) error {
 			} else {
 				input := bufio.NewScanner(os.Stdin)
 
-				if alwaysSkip {
+				if AlwaysSkip {
 					fmt.Printf("\nSkipping %s", targetFile)
-				} else if alwaysOverwrite {
+				} else if AlwaysOverwrite {
 					fmt.Printf("\nOverwriting %s", targetFile)
 					if err := backupThenRemoveFile(targetFile); err == nil {
 						createSymlink(match, targetFile)
 					}
 				} else {
-					fmt.Printf("\n\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
+					fmt.Printf("\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
 
 				InputLoop:
 					for input.Scan() {
@@ -149,18 +133,18 @@ func symlinkFilesInDirectory(path string, home string) error {
 
 						switch answer {
 						case "O", "o":
-							fmt.Printf("\nOverwriting %s", targetFile)
+							fmt.Printf("\nOkay, overwriting %s\n", targetFile)
 							if err := backupThenRemoveFile(targetFile); err == nil {
 								createSymlink(match, targetFile)
 							}
 							if answer == "O" {
-								alwaysOverwrite = true
+								AlwaysOverwrite = true
 							}
 							break InputLoop
 						case "S", "s":
-							fmt.Printf("\nSkipping %s", targetFile)
+							fmt.Printf("\nOkay, skipping %s\n", targetFile)
 							if answer == "S" {
-								alwaysSkip = true
+								AlwaysSkip = true
 							}
 							break InputLoop
 						default:
