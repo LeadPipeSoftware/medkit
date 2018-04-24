@@ -11,8 +11,8 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Exclude our own binary
-medkit
+# Exclude the build output folder
+bin/*
 
 # OS pollution
 .DS_Store
