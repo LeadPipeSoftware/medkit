@@ -124,7 +124,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 						createSymlink(match, targetFile)
 					}
 				} else {
-					fmt.Printf("\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
+					fmt.Printf("\n\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
 
 				InputLoop:
 					for input.Scan() {
@@ -133,7 +133,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 
 						switch answer {
 						case "O", "o":
-							fmt.Printf("\nOkay, overwriting %s\n", targetFile)
+							fmt.Printf("\nOkay, overwriting %s", targetFile)
 							if err := backupThenRemoveFile(targetFile); err == nil {
 								createSymlink(match, targetFile)
 							}
@@ -142,7 +142,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 							}
 							break InputLoop
 						case "S", "s":
-							fmt.Printf("\nOkay, skipping %s\n", targetFile)
+							fmt.Printf("\nOkay, skipping %s", targetFile)
 							if answer == "S" {
 								AlwaysSkip = true
 							}
