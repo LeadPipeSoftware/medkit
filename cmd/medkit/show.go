@@ -17,4 +17,5 @@ The show command will display various resources based on the sub-command.`,
 
 func init() {
 	showCmd.AddCommand(showConfigCmd)
+	showCmd.AddCommand(showDotfilesCmd)
 }

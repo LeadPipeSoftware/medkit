@@ -37,6 +37,41 @@ func InstallDotfiles(cmd *cobra.Command, args []string) {
 	fmt.Println()
 }
 
+// ShowDotfiles will display all dotfiles (recursively) in the dotfiles directory.
+func ShowDotfiles(cmd *cobra.Command, args []string) {
+	dotfilesDirectory := viper.GetString("DotfilesDirectory")
+
+	if dotfiles, err := getAllDotfiles(dotfilesDirectory); err == nil {
+		for _, dotfile := range dotfiles {
+			fmt.Printf("\n%s", dotfile)
+		}
+	} else {
+		fmt.Printf("\n%s", err)
+	}
+
+	fmt.Println()
+}
+
+// getAllDotfiles returns the paths of every dotfile in a directory (recursively).
+func getAllDotfiles(rootpath string) ([]string, error) {
+
+	list := make([]string, 0, 10)
+
+	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+
+		if filepath.Ext(path) == ".symlink" {
+			list = append(list, path)
+		}
+
+		return nil
+	})
+
+	return list, err
+}
+
 // visit determines the action(s) taken during the filepath.Walk method.
 func visit(path string, f os.FileInfo, err error) error {
 	home := viper.GetString("HomeDirectory")
