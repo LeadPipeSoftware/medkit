@@ -7,6 +7,7 @@ jobs:
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
       - run: pwd
+      - run: ls -al
       - run: make build
 
   deploy:
