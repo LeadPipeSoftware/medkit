@@ -3,6 +3,13 @@
 > MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.
 
 [![GitHub issues][github-issues-image]][github-issues-url]
+[![Go Report Card](https://goreportcard.com/badge/github.com/LeadPipeSoftware/medkit)](https://goreportcard.com/report/github.com/LeadPipeSoftware/medkit)
+
+### Complete Command List
+
+[commands](docs/commands.md)
+
+### Overview
 
 MEDKIT is a tool to help you take control of your local environment configuration including:
 
@@ -11,8 +18,8 @@ MEDKIT is a tool to help you take control of your local environment configuratio
 * PATH Variable Management
 * Software Installation
 
-MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match the systems
-you're using.
+MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match
+the systems you're using. This lets you customize each environment with ease.
 
 ### Manage Your Dotfiles
 The trouble with dotfiles is that, unless you have just one login on one computer, you'll have lots of them spread all
@@ -91,28 +98,58 @@ TBD
 
 ## Usage
 
+### Dotfiles structure
+MEDKIT operates on a convention-based directory structure consisting of a root, and N bundle directories:
+
+```
+dotfiles/
+├ bundles
+│   ├ go
+│   │   ├ Brewfile
+│   │   └ path.sh
+│   └ macos
+│       └ Brewfile
+├ homebrew
+│   └ Brewfile
+├ vim
+│   └ .vimrc.symlink
+└ zsh
+    ├ install.sh
+        └ .zshrc.symlink
+```
+Files you intend to share across all systems should be organized at the root level of your dotfile directory.  
+
+Files that you only want to use on some systems can be organized under the bundles directory. Each directory under bundles/ will act as a bundle, and can be optionally installed by specifying it at the command line, or in the .medkit config file.
+
+In the example directory structure above, you can see 3 instances of the Brewfile.  homebrew/Brewfile exists at the root level, and will install software every time medkit is run.  Under the bundles directory, there is a Brewfile for the go bundle, and another for the macos bundle.  The latter two brewfiles will only be run if specifically requested.
+
 ### Initialization
-First, we need to create a directory to put our MEDKIT repo.
+First, we need to set up a ~/.medkit config file specifying the location of our dotfiles (defaults to ~/dotfiles), and any bundles we would like to enable on this machine.
+```yaml
+dotfiles-directory: /home/marvin/dotfiles
+active-bundles: [go,macos]
+```
+
+If you already have a dotfiles repo, clone it into dotfiles directory specified in your config file, and ensure that it follows the conventions described above.
+
+If you do not yet have your own dotfiles, let medkit help you create one.  Create and init your dotfiles directory:
 ```sh
 mkdir /home/marvin/dotfiles
-```
-
-Switch to your new MEDKIT directory.
-```sh
-cd /home/marvin/dotfiles
-```
-
-Initialize MEDKIT.
-```sh
 medkit init
 ```
 
-### Adding Dotfiles
+### TODO: Adding Dotfiles
 Now, let's add an existing dotfile to MEDKIT. Of course, you'll replace the example path shown below with something real
 on your computer.
 ```sh
-medkit add dotfile /home/marvin/.vimrc
+medkit add dotfile -f /home/marvin/.vimrc -d vim
 ```
+
+This command will:
+
+- Create a new folder in your dotfiles repo (if it doesn't already exist) named `vim`
+- Move the specified dotfile into the folder
+- Symlink the dotfile back to the original location
 
 You can view all of the dotfiles MEDKIT is managing like this.
 ```sh
@@ -123,13 +160,13 @@ how you do this, but using something like GitHub is highly recommended.
 
 TODO: Provide basic GitHub instructions.
 
-### Applying Dotfiles
+### Install Dotfiles
 With your MEDKIT repo now under version control, you can use your repo anywhere. Let's say you have a new computer. Just
 clone your GitHub repository to the new computer and install your dotfiles.
 ```sh
-medkit apply dotfiles
+medkit install dotfiles
 ```
-That's it! You now have the same dotfile on both computers.
+That's it!
 
 ### Updating Dotfiles
 When you make a change to a dotfile, you'll probably want to make that change available on all your computers. The
