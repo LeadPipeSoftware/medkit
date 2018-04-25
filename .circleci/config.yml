@@ -1,6 +1,30 @@
-deployment:
-  tag:
-    tag: /v[0-9]+(\.[0-9]+)*(-.*)*/
-    owner: user
-    commands:
-      - curl -sL https://git.io/goreleaser | bash
+version: 2.0
+
+jobs:
+  build:
+    working_directory: /go/src/github.com/LeadPipeSoftware/medkit
+    steps:
+      - run: make clean
+      - run: make build
+
+  deploy:
+    working_directory: /go/src/github.com/LeadPipeSoftware/medkit
+    steps:
+      - run: curl -sL https://git.io/goreleaser
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+            branches:
+              ignore: /.*/
