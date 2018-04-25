@@ -10,13 +10,13 @@ jobs:
   deploy:
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
-      - run: curl -sL https://git.io/goreleaser
+      - run: curl -sL https://git.io/goreleaser | bash
 
 workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
+      - build:
           filters:
             tags:
               only: /.*/
