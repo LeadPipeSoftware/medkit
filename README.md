@@ -4,6 +4,7 @@
 
 [![GitHub issues][github-issues-image]][github-issues-url]
 [![Go Report Card](https://goreportcard.com/badge/github.com/LeadPipeSoftware/medkit)](https://goreportcard.com/report/github.com/LeadPipeSoftware/medkit)
+[![CircleCI](https://circleci.com/gh/LeadPipeSoftware/medkit.svg?style=svg)](https://circleci.com/gh/LeadPipeSoftware/medkit)
 
 ### Complete Command List
 
