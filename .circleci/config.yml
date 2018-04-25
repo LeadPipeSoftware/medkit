@@ -2,12 +2,16 @@ version: 2.0
 
 jobs:
   build:
+    machine:
+      enabled: true
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
       - run: make clean
       - run: make build
 
   deploy:
+    machine:
+      enabled: true
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
       - run: curl -sL https://git.io/goreleaser | bash
