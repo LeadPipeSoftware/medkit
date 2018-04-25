@@ -7,8 +7,9 @@ jobs:
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
       - checkout
-      - run: pwd
-      - run: ls -al
+      - run: go get github.com/mitchellh/go-homedir
+      - run: go get github.com/spf13/cobra
+      - run: go get github.com/spf13/viper
       - run: make build
 
   deploy:
