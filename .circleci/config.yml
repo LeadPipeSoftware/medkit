@@ -6,6 +6,7 @@ jobs:
       - image: circleci/golang:1.9
     working_directory: /go/src/github.com/LeadPipeSoftware/medkit
     steps:
+      - checkout
       - run: pwd
       - run: ls -al
       - run: make build
