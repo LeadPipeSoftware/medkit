@@ -3,6 +3,7 @@ package medkit
 import (
 	"github.com/spf13/cobra"
 	"github.com/LeadPipeSoftware/medkit/internal/dotfile"
+	"github.com/spf13/viper"
 )
 
 // showDotfilesCmd represents the showDotfiles command
@@ -12,7 +13,9 @@ var showDotfilesCmd = &cobra.Command{
 	Long: `
 Display all of the dotfiles contained in your dotfiles directory. This command
 is recursive.`,
-	Run: dotfile.ShowDotfiles,
+	Run: func(cmd *cobra.Command, args []string) {
+		dotfile.ShowDotfiles(viper.GetString(DotFilesDirectory))
+	},
 }
 
 func init() {
