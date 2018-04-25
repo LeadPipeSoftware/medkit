@@ -14,15 +14,17 @@ var showConfigCmd = &cobra.Command{
 	Long: `
 Display the current MEDKIT configuration. This command takes into account
 the config file, environment variables, and command line flags.`,
-	Run: showConfig,
+	Run: func(cmd *cobra.Command, args []string) {
+		showConfig()
+	},
 }
 
 func init() {
 }
 
 // showConfig displays the program's configuration settings.
-func showConfig(cmd *cobra.Command, args []string) {
-	configKeys := []string{"HomeDirectory", "Bundles", "DotfilesDirectory", "BackupExtension"}
+func showConfig() {
+	configKeys := []string{HomeDirectory, Bundles, DotFilesDirectory, BackupExtension}
 
 	fmt.Println("MEDKIT configuration settings:")
 	fmt.Println()

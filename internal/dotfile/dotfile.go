@@ -3,8 +3,6 @@ package dotfile
 import (
 	"bufio"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"path"
 	"path/filepath"
@@ -15,21 +13,35 @@ const bundlesDir = "bundles"
 
 var AlwaysSkip bool
 var AlwaysOverwrite bool
+var HomeDirectory string
 
 // InstallDotfiles will install dotfiles.
-func InstallDotfiles(cmd *cobra.Command, args []string) {
+func InstallDotfiles(dotfilesDirectory string, homeDirectory string, alwaysSkip bool, alwaysOverwrite bool, backupExtension string) {
+	AlwaysSkip = alwaysSkip
+	AlwaysOverwrite = alwaysOverwrite
+
 	if AlwaysSkip && AlwaysOverwrite {
 		fmt.Print("Sorry, the always-skip and always-overwrite flags cannot be used together.")
 		os.Exit(1)
 	}
 
-	dotfilesDirectory := viper.GetString("DotfilesDirectory")
-
 	fmt.Printf("Dotfile directory: %s", dotfilesDirectory)
-	fmt.Printf("\n   Home directory: %s", viper.GetString("HomeDirectory"))
+	fmt.Printf("\n   Home directory: %s", homeDirectory)
 	fmt.Println()
 
-	if err := filepath.Walk(dotfilesDirectory, visit); err != nil {
+	if err := filepath.Walk(dotfilesDirectory, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() && info.Name() == bundlesDir {
+			return filepath.SkipDir
+		}
+
+		if info.IsDir() {
+			if err := symlinkFilesInDirectory(path, homeDirectory, backupExtension); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
 		fmt.Printf("\n%s\n", err)
 		os.Exit(1)
 	}
@@ -38,9 +50,7 @@ func InstallDotfiles(cmd *cobra.Command, args []string) {
 }
 
 // ShowDotfiles will display all dotfiles (recursively) in the dotfiles directory.
-func ShowDotfiles(cmd *cobra.Command, args []string) {
-	dotfilesDirectory := viper.GetString("DotfilesDirectory")
-
+func ShowDotfiles(dotfilesDirectory string) {
 	if dotfiles, err := getAllDotfiles(dotfilesDirectory); err == nil {
 		for _, dotfile := range dotfiles {
 			fmt.Printf("\n%s", dotfile)
@@ -72,26 +82,8 @@ func getAllDotfiles(rootpath string) ([]string, error) {
 	return list, err
 }
 
-// visit determines the action(s) taken during the filepath.Walk method.
-func visit(path string, f os.FileInfo, err error) error {
-	home := viper.GetString("HomeDirectory")
-
-	if f.IsDir() && f.Name() == bundlesDir {
-		return filepath.SkipDir
-	}
-
-	if f.IsDir() {
-		if err := symlinkFilesInDirectory(path, home); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // backupThenRemoveFile creates a backup of a file, but removes existing backups first.
-func backupThenRemoveFile(filename string) error {
-	backupExtension := viper.GetString("BackupExtension")
+func backupThenRemoveFile(filename string, backupExtension string) error {
 	backupFile := filename + backupExtension
 
 	if fileExists(backupFile) {
@@ -139,7 +131,7 @@ func getSymlinkTargetName(fileName string) string {
 }
 
 // symlinkFilesInDirectory creates symbolic links for each .symlink file in a directory.
-func symlinkFilesInDirectory(path string, home string) error {
+func symlinkFilesInDirectory(path string, home string, backupExtension string) error {
 	matches, err := filepath.Glob(path + "/*.symlink")
 
 	if err == nil {
@@ -155,7 +147,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 					fmt.Printf("\nSkipping %s", targetFile)
 				} else if AlwaysOverwrite {
 					fmt.Printf("\nOverwriting %s", targetFile)
-					if err := backupThenRemoveFile(targetFile); err == nil {
+					if err := backupThenRemoveFile(targetFile, backupExtension); err == nil {
 						createSymlink(match, targetFile)
 					}
 				} else {
@@ -169,7 +161,7 @@ func symlinkFilesInDirectory(path string, home string) error {
 						switch answer {
 						case "O", "o":
 							fmt.Printf("\nOkay, overwriting %s", targetFile)
-							if err := backupThenRemoveFile(targetFile); err == nil {
+							if err := backupThenRemoveFile(targetFile, backupExtension); err == nil {
 								createSymlink(match, targetFile)
 							}
 							if answer == "O" {

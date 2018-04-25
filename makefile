@@ -1,11 +1,9 @@
 VERSION=0.0.1-alpha
-BUILD_DATE=`date +%FT%T%z`
-COMMIT_HASH=`git describe --always`
+DATE=`date +%FT%T%z`
+COMMIT=`git describe --always`
 BIN_DIR=bin
 
-FULL_IMPORT_PATH=github.com/LeadPipeSoftware/medkit/cmd/medkit
-
-LDFLAGS=-ldflags "-w -s -X ${FULL_IMPORT_PATH}.Version=${VERSION} -X ${FULL_IMPORT_PATH}.BuildDate=${BUILD_DATE} -X ${FULL_IMPORT_PATH}.CommitHash=${COMMIT_HASH}"
+LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} -X main.date=${DATE} -X main.commit=${COMMIT}"
 
 build:
 	go build -o ${BIN_DIR}/medkit ${LDFLAGS}
