@@ -8,6 +8,7 @@ import (
 
 var alwaysSkip = false
 var alwaysOverwrite = false
+var forceReinstall = false
 
 var installDotfilesCmd = &cobra.Command{
 	Use:   "dotfiles",
@@ -21,12 +22,13 @@ file to your home directory.`,
 		homeDirectory := viper.GetString(HomeDirectory)
 		backupExtension := viper.GetString(BackupExtension)
 
-		dotfile.InstallDotfiles(dotfilesDirectory, homeDirectory, alwaysSkip, alwaysOverwrite, backupExtension)
+		dotfile.InstallDotfiles(dotfilesDirectory, homeDirectory, alwaysSkip, alwaysOverwrite, forceReinstall, backupExtension)
 	},
 }
 
 func init() {
 	installDotfilesCmd.Flags().BoolVarP(&alwaysSkip, "always-skip", "s", false, "always skip existing files")
 	installDotfilesCmd.Flags().BoolVarP(&alwaysOverwrite, "always-overwrite", "o", false, "always overwrite existing files")
+	installDotfilesCmd.Flags().BoolVarP(&forceReinstall, "force-reinstall", "f", false, "force re-install")
 }
 

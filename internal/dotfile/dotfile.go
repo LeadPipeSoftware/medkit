@@ -7,18 +7,22 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
+	"unicode"
 )
 
 const bundlesDir = "bundles"
 
 var AlwaysSkip bool
 var AlwaysOverwrite bool
+var ForceReinstall bool
 var HomeDirectory string
 
 // InstallDotfiles will install dotfiles.
-func InstallDotfiles(dotfilesDirectory string, homeDirectory string, alwaysSkip bool, alwaysOverwrite bool, backupExtension string) {
+func InstallDotfiles(dotfilesDirectory string, homeDirectory string, alwaysSkip bool, alwaysOverwrite bool, forceReinstall bool, backupExtension string) {
 	AlwaysSkip = alwaysSkip
 	AlwaysOverwrite = alwaysOverwrite
+	ForceReinstall = forceReinstall
 
 	if AlwaysSkip && AlwaysOverwrite {
 		fmt.Print("Sorry, the always-skip and always-overwrite flags cannot be used together.")
@@ -64,7 +68,6 @@ func ShowDotfiles(dotfilesDirectory string) {
 
 // getAllDotfiles returns the paths of every dotfile in a directory (recursively).
 func getAllDotfiles(rootpath string) ([]string, error) {
-
 	list := make([]string, 0, 10)
 
 	err := filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
@@ -83,8 +86,8 @@ func getAllDotfiles(rootpath string) ([]string, error) {
 }
 
 // backupThenRemoveFile creates a backup of a file, but removes existing backups first.
-func backupThenRemoveFile(filename string, backupExtension string) error {
-	backupFile := filename + backupExtension
+func backupThenRemoveFile(fileName string, backupExtension string) error {
+	backupFile := fileName + backupExtension
 
 	if fileExists(backupFile) {
 		if err := os.Remove(backupFile); err != nil {
@@ -93,7 +96,7 @@ func backupThenRemoveFile(filename string, backupExtension string) error {
 		}
 	}
 
-	if err := os.Rename(filename, backupFile); err != nil {
+	if err := os.Rename(fileName, backupFile); err != nil {
 		fmt.Printf("\nERROR creating backup %s: %s", backupFile, err)
 		return err
 	}
@@ -122,17 +125,60 @@ func fileExists(targetFile string) bool {
 	return !fileDoesNotExist(targetFile)
 }
 
+// fileIsSymlink returns true if the specified file is a symlink.
+func fileIsSymlink(fileName string) (bool, error) {
+	// Gotta use os.Lstat because os.Stat would read the target and not the link itself
+	fi, err := os.Lstat(fileName)
+
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Mode()&os.ModeSymlink != 0 {
+		_, err := os.Readlink(fileName)
+
+		if err != nil {
+			return false, err
+		}
+
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
 // getSymlinkTargetName builds and returns the symbolic link target name (the name without the .symlink extension).
 func getSymlinkTargetName(fileName string) string {
 	name := path.Base(fileName)
-	re := regexp.MustCompile("\\.symlink")
+	re := regexp.MustCompile("(?i)\\.symlink")
 
 	return re.ReplaceAllString(name, "")
 }
 
+// getCaseInsensitiveFilePath returns a Glob pattern that is case insensitive (depending on OS).
+func getCaseInsensitiveFilePath(path string) string {
+	if runtime.GOOS == "windows" {
+		return path
+	}
+
+	p := ""
+
+	for _, r := range path {
+		if unicode.IsLetter(r) {
+			p += fmt.Sprintf("[%c%c]", unicode.ToLower(r), unicode.ToUpper(r))
+		} else {
+			p += string(r)
+		}
+	}
+
+	return p
+}
+
 // symlinkFilesInDirectory creates symbolic links for each .symlink file in a directory.
 func symlinkFilesInDirectory(path string, home string, backupExtension string) error {
-	matches, err := filepath.Glob(path + "/*.symlink")
+	caseInsensitiveFilePath := getCaseInsensitiveFilePath(path + "/*.symlink")
+
+	matches, err := filepath.Glob(caseInsensitiveFilePath)
 
 	if err == nil {
 		for _, match := range matches {
@@ -141,8 +187,16 @@ func symlinkFilesInDirectory(path string, home string, backupExtension string) e
 			if fileDoesNotExist(targetFile) {
 				createSymlink(match, targetFile)
 			} else {
-				input := bufio.NewScanner(os.Stdin)
+				if isLink, _ := fileIsSymlink(targetFile); isLink == true {
+					fileLinksTo, _ := os.Readlink(targetFile)
 
+					if fileLinksTo == match {
+						if ForceReinstall == false {
+							fmt.Printf("\n%s already installed", targetFile)
+							continue
+						}
+					}
+				}
 				if AlwaysSkip {
 					fmt.Printf("\nSkipping %s", targetFile)
 				} else if AlwaysOverwrite {
@@ -152,6 +206,8 @@ func symlinkFilesInDirectory(path string, home string, backupExtension string) e
 					}
 				} else {
 					fmt.Printf("\n\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
+
+					input := bufio.NewScanner(os.Stdin)
 
 				InputLoop:
 					for input.Scan() {
