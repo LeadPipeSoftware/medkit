@@ -7,7 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"log"
 	"runtime"
 	"unicode"
 )
@@ -16,12 +15,14 @@ const bundlesDir = "bundles"
 
 var AlwaysSkip bool
 var AlwaysOverwrite bool
+var ForceReinstall bool
 var HomeDirectory string
 
 // InstallDotfiles will install dotfiles.
-func InstallDotfiles(dotfilesDirectory string, homeDirectory string, alwaysSkip bool, alwaysOverwrite bool, backupExtension string) {
+func InstallDotfiles(dotfilesDirectory string, homeDirectory string, alwaysSkip bool, alwaysOverwrite bool, forceReinstall bool, backupExtension string) {
 	AlwaysSkip = alwaysSkip
 	AlwaysOverwrite = alwaysOverwrite
+	ForceReinstall = forceReinstall
 
 	if AlwaysSkip && AlwaysOverwrite {
 		fmt.Print("Sorry, the always-skip and always-overwrite flags cannot be used together.")
@@ -134,10 +135,10 @@ func fileIsSymlink(fileName string) (bool, error) {
 	}
 
 	if fi.Mode()&os.ModeSymlink != 0 {
-		_, err := os.Readlink(fi.Name())
+		_, err := os.Readlink(fileName)
 
 		if err != nil {
-			log.Fatal(err)
+			return false, err
 		}
 
 		return true, nil
@@ -186,8 +187,16 @@ func symlinkFilesInDirectory(path string, home string, backupExtension string) e
 			if fileDoesNotExist(targetFile) {
 				createSymlink(match, targetFile)
 			} else {
-				input := bufio.NewScanner(os.Stdin)
+				if isLink, _ := fileIsSymlink(targetFile); isLink == true {
+					fileLinksTo, _ := os.Readlink(targetFile)
 
+					if fileLinksTo == match {
+						if ForceReinstall == false {
+							fmt.Printf("\n%s already installed", targetFile)
+							continue
+						}
+					}
+				}
 				if AlwaysSkip {
 					fmt.Printf("\nSkipping %s", targetFile)
 				} else if AlwaysOverwrite {
@@ -197,6 +206,8 @@ func symlinkFilesInDirectory(path string, home string, backupExtension string) e
 					}
 				} else {
 					fmt.Printf("\n\n%s already exists. What do you want to do?\n[s]kip, [S]kip All, [o]verwrite, [O]verwrite All: ", targetFile)
+
+					input := bufio.NewScanner(os.Stdin)
 
 				InputLoop:
 					for input.Scan() {
