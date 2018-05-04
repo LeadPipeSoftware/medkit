@@ -2,13 +2,8 @@
 # MEDKIT
 > MEDKIT (Multi-Environment Dotfiles Kit) is the dotfile management solution for the obsessive compulsive.
 
-[![GitHub issues][github-issues-image]][github-issues-url]
-[![Go Report Card](https://goreportcard.com/badge/github.com/LeadPipeSoftware/medkit)](https://goreportcard.com/report/github.com/LeadPipeSoftware/medkit)
-[![CircleCI](https://circleci.com/gh/LeadPipeSoftware/medkit.svg?style=shield)](https://circleci.com/gh/LeadPipeSoftware/medkit)
-
-### Complete Command List
-
-[commands](docs/commands.md)
+[![Go Report Card][go-report-card-image]][go-report-card-url]
+[![CircleCI][circleci-image]][circleci-url]
 
 ### Overview
 
@@ -17,7 +12,7 @@ MEDKIT is a tool to help you take control of your local environment configuratio
 * Dotfile Management
 * Run Command (rc) Script Management
 * PATH Variable Management
-* Software Installation
+<!-- * Software Installation -->
 
 MEDKIT also has a native concept of [environments][environments] which allow you to categorize your settings to match
 the systems you're using. This lets you customize each environment with ease.
@@ -49,6 +44,7 @@ system can help!
 - Run `*.path` scripts
 - Determine the order of each PATH element
 
+<!--
 ### Install Your Software
 Getting all your tools installed is often one of the biggest challenges when you start using a new computer for the
 first time. With MEDKIT, you can script your installation scripts and run them as-needed.
@@ -56,6 +52,7 @@ first time. With MEDKIT, you can script your installation scripts and run them a
 - Run `*.installer` scripts
 - Remember what has already been run
 - Reset if needed
+-->
 
 ### Environments <a id="environments"></a>
 MEDKIT allows you to define one or more environments, but right now it's a big mystery.
@@ -84,22 +81,26 @@ adopted and tweaked Zach's convention-based setup:
 -->
 
 ## Installation
-macOS:
-```
-TBD
-```
-Linux:
-```
-TBD
-```
-Windows WSL:
-```
-TBD
-```
+Download a binary from the [releases page][releases-url], or if you have go installed, run `go get github.com/LeadPipeSoftware/medkit`.
+
+### macOS:
+
+At the moment we provide a pre-compiled, self-contained binary. Download the version appropriate for your OS and
+architecture and put it in a `%HOME%/bin` folder (make sure that folder is in your `%PATH%`) or wherever you feel
+comfortable (like perhaps `/usr/local/bin`).
+
+### Linux:
+
+At the moment we provide a pre-compiled, self-contained binary. Download the version appropriate for your OS and
+architecture and put it wherever your distribution suggests.
+
+### Windows WSL:
+
+We don't currently have a Windows Subsystem for Linux (WSL) binary, but it's coming very soon!
 
 ## Usage
 
-### Dotfiles structure
+### Dotfiles Structure
 MEDKIT operates on a convention-based directory structure consisting of a root, and N bundle directories:
 
 ```
@@ -199,6 +200,9 @@ Distributed under the MIT license. See the [LICENSE][license] file for more info
 [contributing]: https://github.com/LeadPipeSoftware/medkit/blob/master/CONTRIBUTING.md
 [security]: https://github.com/LeadPipeSoftware/medkit/blob/master/SECURITY.md
 [license]: https://github.com/LeadPipeSoftware/medkit/blob/master/LICENSE
-[github-issues-image]: https://img.shields.io/github/issues/badges/shields.svg
-[github-issues-url]: https://github.com/LeadPipeSoftware/medkit/issues
 [wiki]: https://github.com/LeadPipeSoftware/medkit/wiki
+[go-report-card-image]: https://goreportcard.com/badge/github.com/LeadPipeSoftware/medkit
+[go-report-card-url]: https://goreportcard.com/report/github.com/LeadPipeSoftware/medkit
+[circleci-image]: https://circleci.com/gh/LeadPipeSoftware/medkit.svg?style=shield
+[circleci-url]: https://circleci.com/gh/LeadPipeSoftware/medkit
+[releases-url]: https://github.com/LeadPipeSoftware/medkit/releases
